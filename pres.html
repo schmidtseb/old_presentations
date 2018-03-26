@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PMMA-Water Phantom Backscattering Analysis</title>
+    <meta charset="utf-8" />
+    
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    
+    <script>
+      // this code is necessary only for showing source in example
+      $(window).load(function() {
+        // position source box in center
+        $('#source').position({
+          of: $('#slideshow')
+        });
+    
+        // show source box
+        $('.show-source > a, #overlay').click(function(e) {
+          e.preventDefault();
+          $('#overlay, #source').toggle(300);
+        });
+    
+        // open source links in new tab/window
+        $('.show-source > a').attr('target', '_blank');
+      });
+    </script>
+    
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Sans);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    
+      body {
+        font-family: 'Droid Sans';
+        font-size: medium;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .small * {
+        font-size: small !important;
+      }
+      code {
+        border-radius: 5px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+      .footnote {
+        position: absolute;
+        font-size: small;
+        bottom: 3em;
+        right: 3em;
+      }
+      /* styling only necessary for displaying source */
+      #source {
+        position: absolute;
+        display: none;
+        font-family: monospace;
+        font-size: medium;
+        background: #333333;
+        color: white;
+        padding: 10px;
+        text-align: left;
+        width: 65%;
+        height: 70%;
+        z-index: 1000;
+      }
+      #overlay {
+        position: absolute;
+        display: none;
+        background: black;
+        width: 100%;
+        height: 100%;
+        opacity: 0.2;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source" readonly>
+class: center, middle, inverse
+
+# PMMA-Water Phantom Backscattering Analysis
+
+### 27th March 2018
+
+---
+
+## Setup Description
+PMMA-Water phantom filled with water is irradiated with a monoenergetic photon field which is oriented perpendicular to the phantom's surface
+
+.center[![phantom_setup](images/phantom_setup.svg)]
+
+---
+
+## Problem Description
+
+From `\(N\)` photons only `\(\approx 6\cdot 10^{-7} N\)` are detected.  
+`\(\rightarrow\)` Leads to extremely long calculation times
+
+#### Reasons:
+
+- Photons are traversing the phantom
+- Photons are scattering back from the phantom but don't reach the detector at all
+- Photons hit the detector but are not detected due to its efficiency of about 1%
+
+#### Solution:
+
+Analyse the characteristics of the backscattered photons in order to exchange the whole phantom in the simulation with an equivalent but more efficient source
+
+---
+
+## Simulation of the Phantom Setup
+
+- Using GEANT4 for the construction of the geometry and simulation of the photons
+- A detector is put in front of the phantom which is transparent for incoming particles, but totally absorbes backscatterd photons
+- All important properties of the detected photons are logged (energy, hit position, direction,...)
+
+#### Important simulation requirement:  
+Need to only consider backscattering photons: area where the dosemeter sits on the phantom must not be irratiated 
+
+.center[![phantomCartesianEfficiency](images/geant4_sim.png)]
+
+---
+
+## Photons Traversing the Phantom
+
+- Simulation is executed with a detector spanning the area of the whole phantom 
+- Shown is the probability to detect photons in the setup
+- With increasing energy, less photons are able to traverse the phantom undetected
+
+.center[![phantomCartesianEfficiency](images/phantomCartesianEfficiency.svg)]
+
+---
+
+## Dosemeter Bounding Box (DBB)
+
+- Create box surrounding the dosemeter in later simulations
+- Acts as a surface at which no primary particles are allowed to enter the phantom
+- Can also be used as an detector to later sample events from its surface to its inside
+
+.center[![phantomCartesianEfficiency](images/geant4_absorber.png)]
+
+---
+
+## Photons Reaching the DBB
+
+Probability to reach the dosemeter bounding box as a function of the primary energy of the photons.
+&nbsp;
+
+&nbsp;
+
+.center[![phantomAbsorberEfficiency](images/phantomAbsorberEfficiency.svg)]
+
+---
+
+## Energy Distribution of Backscattered Photons
+
+- Increasing primary energy of photon field yields to broadening of backscattered photon energy
+- Number of reflected photons at the phantom's surface decreases with increasing primary energy
+
+.center[![phantomAbsorberEfficiency](images/energy_anim.gif)]
+
+---
+
+## Energy Distribution of Backscattered Photons
+
+.center[![phantomAbsorberEfficiency](images/ekin_vs_eprim.png)]
+
+---
+
+## Possible Sampling Method: Probability Density Function
+
+Need a method to generate events with a high probability of detection
+
+- In the best case, all photon attributes are uncorrelated
+
+  `\(\rightarrow\)` Simply sample the attributes from one-dimensional distributions
+
+- Generate events and histogram their attributes 
+
+  `\(\rightarrow\)` Estimate PDF via fit to histogram
+- Need to investigate correlation of attributes first
+
+---
+
+## Phantom Coordinate System
+.center[![phantom_coord](images/phantom_coord.png)]
+
+---
+
+## Pearson Correlation Coefficient (PCC)
+- Describes the linear correlation between two variables `\(X\)` and `\(Y\)`
+- Has a value between +1 and -1
+  + +1 or -1: Total linear correlation
+  + 0: No linear correlation
+
+#### Calculation via
+
+$$\rho_{X,Y} = \frac{\mathrm{cov}(X,\, Y)}{\sigma_X\sigma_Y}$$
+
+#### Examples
+.center[![correlation_examples](images/Correlation_examples.png)]
+
+---
+
+## Correlation Analysis (Phantom-sized Absorber - 60 keV)
+
+Here, `\(\alpha\)` is the angle between the direction of the photon, `\(\vec p\)`, and the surface normal of the phantom, `\(\vec n\)`
+
+.center[![cartesian_corr](images/cartesian_corr.png)]
+
+---
+
+## DBB Geometry
+
+.center[![top_geometry](images/top_geometry.png)]
+
+---
+
+## Correlation Analysis DBB (Top - 60 keV)
+
+.center[![absorber_60keV_top_correlation](images/absorber_60keV_top_correlation.png)]
+
+---
+
+## Correlation Analysis DBB (Back - 60 keV)
+
+.center[![absorber_60keV_top_correlation](images/absorber_60keV_back_correlation.png)]
+
+---
+
+## Correlation Analysis Results
+
+- Phantom-sized detector: 
+  + Only a few photon attributes 
+  + Correlation of `\(E_{\mathrm{kin}}\)` and `\(\alpha\)` 
+  + Would need heavy rejection sampling
+- DBB: 
+  + Many attributes
+  + High correlation of the attributes
+  + Source very close to the dosemeter
+
+`\(\rightarrow\)` Due to correlations, method is not sufficiently applicable
+
+---
+
+## Possible Sampling: n-dim. Kernel Density Estimation
+
+| Attribute           | Description                              |
+| :------------------ | :--------------------------------------- |
+| *Kernel*            | Positive function `\(K(x;\ h)\)` controlled by bandwidth `\(h\)` |
+| *Density estimate*  | At point `\(y\)` within group of points `\(x_i\)` |
+| *Bandwidth* `\(h\)` | Smoothing parameter, controlling tradeoff between bias and variance |
+.center[![sphx_glr_plot_kde_1d_0031](images/sphx_glr_plot_kde_1d_0031.png)]
+
+[Source: scikit-learn](http://scikit-learn.org/stable/modules/density.html)
+
+---
+
+## KDE Sampling
+
+- Use events which hit the dosemeter bounding box and which have `\(n\)` attributes: 
+  $$\vec x,\, \alpha,\, \beta,\, E_\mathrm{kin}$$
+
+- Instead of directly sampling events, smooth their distribution via *KDE*  
+  `\(\rightarrow\)` Establish continuity of PDE
+
+#### Procedure:
+
+- Use Gaussian kernel
+- Sample single event from dataset and randomly sample from the `\(n\)`-dimensional kernel
+- Distribution of the so sampled events equals the KDE of the whole data
+
+---
+
+## KDE Example
+
+.center[![kde_test](images/kde_test.png)]
+
+---
+
+## Combined Solution
+- Estimate PDFs from uncorrelated photon attributes
+- In case of correlation, use KDE to sample from distributions
+- Use **Dosemeter Bounding Box** method:
+  + Disadvantage: Needs longer simulation time since not many photons reach the DBB
+  + Advantage: No need for rejection sampling in the end
+- Need 3D KDE in case of _DBB Top_ and _DBB Right_, since `\(E_{\mathrm{kin}}\)` is nonlinearly correlated with `\(\alpha\)` and `\(\beta\)`
+
+.center[![ekin_vs](images/ekin_vs.png)]
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+    
+    <script>
+      var slideshow = remark.create({
+        // Set the slideshow display ratio
+        // Default: '4:3'
+        // Alternatives: '16:9', ...
+        ratio: '16:9',
+        
+        // Navigation options
+        navigation: {
+          // Enable or disable navigating using scroll
+          // Default: true
+          // Alternatives: false
+          scroll: true,
+        
+          // Enable or disable navigation using touch
+          // Default: true
+          // Alternatives: false
+          touch: true,
+        
+          // Enable or disable navigation using click
+          // Default: false
+          // Alternatives: true
+          click: false
+        },
+        
+        // Customize slide number label, either using a format string..
+        slideNumberFormat: 'Slide %current% of %total%',
+        // .. or by using a format function
+        slideNumberFormat: function (current, total) {
+          return 'Slide ' + current + ' of ' + total;
+        },
+        
+        // Enable or disable counting of incremental slides in the slide counting
+        countIncrementalSlides: true
+      }); 
+    
+      // Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+    
+      MathJax.Hub.Configured();
+    
+    </script>
+      </body>
+    </html>
+
