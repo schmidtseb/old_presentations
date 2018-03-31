@@ -2,7 +2,7 @@
 
 ## Calculation of the dose
 
-Given a matrix $\hat N$ containing taken energy spectra for a source emitting a certain dose as their rows. Each row consists of 16 bins where the histogram itself was made by previously specified bin edges (see [section 'Optimization of bin edges'](#optimization-of-bin-edges)).  
+Given a matrix $\hat N$, containing taken energy spectra for a source emitting a certain dose as their rows. Each row consists of 16 bins where the histogram itself was made by previously specified bin edges (see [section 'Optimization of bin edges'](#optimization-of-bin-edges)).  
 The doses $\vec D$ for all spectra are calculated from the measured data $\hat N$ using a set of conversion factors $\vec \alpha$ via 
 $$
 \vec D = \hat N \cdot \vec \alpha.
@@ -110,9 +110,9 @@ $$
 
 - Using data of folder '*runs_combined*'
 
-- Fluence was slightly corrected to 
+- Fluence is set to 
 $$
-\phi = \frac{1}{0.9} \cdot 5 \cdot 400000 \cdot 1000.0 \cdot \frac{1}{30^2}
+\phi = 5 \cdot 400000 \cdot 1000.0 \cdot \frac{1}{(30\, \mathrm{cm})^2}
 $$
 - Current value of chi-squared (neglecting $\sigma_i$):
 $$
