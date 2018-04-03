@@ -94,7 +94,7 @@ class: center, middle, inverse
 
 ## The Polyfit Way
 
-### 3th April 2018
+### 3rd April 2018
 
 ---
 
@@ -119,7 +119,7 @@ class: center, middle, inverse
 
 - Minimize function
 
-  $$ \sum_{i=1}^n \Vert \hat H_i \cdot \vec \alpha_i - \vec D_i \Vert + \Vert \hat H \cdot \left(\sum_{i=1}^{n-1} k_i\vec \alpha_i + \left(1 - \sum_{i=1}^{n-1} k_i \right) \vec \alpha_n\right) - \vec D \Vert $$
+  `\(\begin{align*} \sum_{i=1}^n \Vert \hat H_i \cdot \vec \alpha_i - \vec D_i \Vert + \Vert \hat H \cdot \left(\sum_{i=1}^{n-1} k_i\vec \alpha_i + \left(1 - \sum_{i=1}^{n-1} k_i \right) \vec \alpha_n\right) - \vec D \Vert \end{align*}\)`
 
 ---
 
@@ -261,7 +261,7 @@ Like before in the normal fit case: Not possible to get all data points within t
 ---
 
 ## Conclusion
-- Normal fit is not able to improve the `\(\mathrm{H_p}(0.07\)`-angle issues for low energies
+- Normal fit is not able to improve the `\(\mathrm{H_p}(0.07)\)`-angle issues for low energies
 - Direct alphaPoly-Fit seems to work properly and reduces the number of required measurements in order to estimate a set of conversion factors
 - Improvement of the results via a genetic algorithm possible `\(\rightarrow\)` In order to do so, need complete spectra in the measurements
 - alphaPoly-Fit is also not able to fix the angle issues
