@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Energy Calibration</title>
+    <meta charset="utf-8" />
+    
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    
+    <script>
+      // this code is necessary only for showing source in example
+      $(window).load(function() {
+        // position source box in center
+        $('#source').position({
+          of: $('#slideshow')
+        });
+    
+        // show source box
+        $('.show-source > a, #overlay').click(function(e) {
+          e.preventDefault();
+          $('#overlay, #source').toggle(300);
+        });
+    
+        // open source links in new tab/window
+        $('.show-source > a').attr('target', '_blank');
+      });
+    </script>
+    
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Sans);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    
+      body {
+        font-family: 'Droid Sans';
+        font-size: medium;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .small * {
+        font-size: small !important;
+      }
+      code {
+        border-radius: 5px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+      .footnote {
+        position: absolute;
+        font-size: small;
+        bottom: 3em;
+        right: 3em;
+      }
+      /* styling only necessary for displaying source */
+      #source {
+        position: absolute;
+        display: none;
+        font-family: monospace;
+        font-size: medium;
+        background: #333333;
+        color: white;
+        padding: 10px;
+        text-align: left;
+        width: 65%;
+        height: 70%;
+        z-index: 1000;
+      }
+      #overlay {
+        position: absolute;
+        display: none;
+        background: black;
+        width: 100%;
+        height: 100%;
+        opacity: 0.2;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source" readonly>
+class: center, middle, inverse
+
+# The Black Art of Energy Calibration
+
+### 10th July 2018
+
+---
+
+## THL Calibration
+
+- Want to do THL-scan later `\(\rightarrow\)` Need to calibrate threshold voltage V_ThA first
+- Changing THL linearly results in a sawtooth curve for V_ThA
+
+
+<p style="text-align:center;"><img src="images/THLCurve.svg" alt="THLCalib" width="600px" align="middle"/></p>
+
+---
+
+## THL Calibration #2
+
+- Calculate derivative of curve to find edges in sawtooth
+- Divide curve into segments at THL-edge points
+- Fit curve to each segment (erf-fit for first segment, linear-fit for remaining ones)
+
+<p style="text-align:center;"><img src="images/THLCurveSegments.svg" alt="THLCalibSegments" width="600px" align="middle"/></p>
+
+
+
+---
+
+## THL Calibration #3
+
+- Zoomed in view of previous calibration plot
+- Linear fit described via `\(m \cdot \mathrm{THL} + t\)`
+- Find value of V_ThA at THL `\(T\)` which has the same distance on the THL-axis to both neighbouring linear fits, i.e. `\(T - T_1 = T_2 - T\)`, where `\(T_1\)` and `\(T_2\)` are the intersection points
+- Solution: `\(\frac{1}{m_1 + m_2}\left(2T\cdot m_1m_2 + t_1m_2 + t_2m_1\right)\)` (indicated by dashed lines)
+
+<p style="text-align:center;"><img src="images/THLCalibZoom.svg" alt="THLCalibZoom" width="500px" align="middle"/></p>
+
+---
+
+## THL Calibration #4
+
+- Cut segments for which two V_ThA voltages exist, i.e. don't use corresponding THL values
+- Resulting V_ThA curve is a concatenation of the fits in the cut THL value ranges
+- Since the slope varies from fit to fit, the resulting change when varying V_ThA linearly is not linear
+- Solution: Vary THL but use V_ThA as corrected THL value in the following 
+
+---
+
+## THL to ToT Conversion
+
+- Generate `\(N = 30\)` test pulses with arbitrary energies (due to unknown capacitance)
+- Store the mean value and standard deviation of the ToT pulses
+- Perform a THL scan to get the cumulative sum of the pulse
+- Perform erf-fit to get position as well as standard deviation of the pulse in the THL domain
+
+<p style="text-align:center;"><img src="images/THL_ToT_Calib.svg" alt="ToT_THL_Calib" width="600px" align="middle"/></p>
+
+---
+
+## THL to ToT - Calibration
+
+- Perform conversion from THL to ToT for each pixel using multiple test pulse energies
+- Strange, unresolved glitches for certain THL values (due to periphery DACs maybe?)
+- Perform fit for each dataset to get calibration parameters for each pixel
+
+<p style="text-align:center;"><img src="images/pixelCalib.svg" alt="pixelCalib" width="600px" align="middle"/></p> 
+
+---
+
+## THL to ToT - Fit function
+
+- Household fit function for THL to ToT conversion:
+  $$\mathrm{ToT}(\mathrm{THL}) = a\cdot \mathrm{THL} + b + \frac{c}{\mathrm{THL} - t} $$
+
+- But, found out that the following function fits better (better convergence, relative error on fit parameters is smaller):
+  $$\mathrm{ToT}_\mathrm{atan}(\mathrm{THL}) = a(\mathrm{THL} - b) + c\cdot\tan^{-1}\left(\frac{\mathrm{THL} - b}{t}\right)$$
+
+  Problem: only numerically invertable
+
+- Approximation (Taylor-series) of `\(\mathrm{ToT}_\mathrm{atan}(\mathrm{THL})\)` leads to:
+
+  $$\mathrm{ToT}_\mathrm{simple}(\mathrm{THL}) = a(\mathrm{THL} - b) - c\cdot\left(\frac{\pi}{2} + \frac{t}{\mathrm{THL - b}}\right)$$
+
+  which is similar to the household function, but contains a correlation of `\(b\)` and `\(t\)` which might stabilize the fit.
+
+  Therefore, using `\(\mathrm{ToT}_\mathrm{simple}(\mathrm{THL})\)` in the following
+
+
+---
+
+## ToT to THL Conversion
+
+- Invert `\(\mathrm{ToT}_\mathrm{simple}(\mathrm{THL})\)` to get 
+  $$\mathrm{THL}_\mathrm{simple}(\mathrm{ToT}) = b + \frac{1}{4a}\cdot\left(2\mathrm{ToT} + c\cdot\pi + \sqrt{16act + (2\cdot\mathrm{ToT} + c\cdot\pi)^2}\right)$$
+- Perform conversion on Am-241 data:
+
+<p style="text-align:center;"><img src="images/ToT_THL.svg" alt="ToT_THL" width="500px" align="middle"/></p> 
+
+---
+
+## THL to Energy
+
+- Perform fits to peaks at 59.5409 keV and 26.3446 keV (in THL spectrum); Use (erf + normal)-function to model signal and background 
+- Assumption: THL proportional to energy `\(\rightarrow\)` Linear conversion
+
+<p style="text-align:center;"><img src="images/THL_Energy.svg" alt="ToT_THL" width="500px" align="middle"/></p> 
+
+---
+
+## Energy to ToT Conversion
+
+Insert estimated conversion parameters in pixel calibration curves
+
+<p style="text-align:center;"><img src="images/Energy_ToT.svg" alt="Energy_ToT" width="600px" align="middle"/></p> 
+
+---
+
+## Conversion Example: Am-241
+
+<p style="text-align:center;"><img src="images/AmCalib.svg" alt="AmCalib" width="700px" align="middle"/></p> 
+
+---
+
+## Conversion Example: Sn Fluorescence
+
+<p style="text-align:center;"><img src="images/SnCalib.svg" alt="SnCalib" width="700px" align="middle"/></p> 
+
+---
+
+## Conversion Example: Ba Fluorescence
+
+<p style="text-align:center;"><img src="images/BaCalib.svg" alt="BaCalib" width="700px" align="middle"/></p> 
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+    
+    <script>
+      var slideshow = remark.create({
+        // Set the slideshow display ratio
+        // Default: '4:3'
+        // Alternatives: '16:9', ...
+        ratio: '16:9',
+        
+        // Navigation options
+        navigation: {
+          // Enable or disable navigating using scroll
+          // Default: true
+          // Alternatives: false
+          scroll: true,
+        
+          // Enable or disable navigation using touch
+          // Default: true
+          // Alternatives: false
+          touch: true,
+        
+          // Enable or disable navigation using click
+          // Default: false
+          // Alternatives: true
+          click: false
+        },
+        
+        // Customize slide number label, either using a format string..
+        slideNumberFormat: 'Slide %current% of %total%',
+        // .. or by using a format function
+        slideNumberFormat: function (current, total) {
+          return 'Slide ' + current + ' of ' + total;
+        },
+        
+        // Enable or disable counting of incremental slides in the slide counting
+        countIncrementalSlides: true
+      }); 
+    
+      // Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+    
+      MathJax.Hub.Configured();
+    
+    </script>
+      </body>
+    </html>
+

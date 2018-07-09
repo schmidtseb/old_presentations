@@ -6,4 +6,5 @@
 | [Estimation of Conversion Factors - The Polyfit Way](conversion_poly_3_4/pres.html) | 3.4.18  |
 | [GDML Reader](GDML_reader_17_4/pres.html) | 17.4.18 |
 | [LED Measurements]()                     |         |
-| [Temperature Dependence](temperature_dependence_3_7/pres.html) | 3.7.18  |
+| [Temperature Dependence](temperature_dependence_3_7/pres.html) | 3.7.18 |
+| [The Black Art of Energy Calibration](energy_calibration_10_7/pres.html) | 10.7.18 |
