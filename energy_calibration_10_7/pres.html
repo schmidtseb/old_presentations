@@ -193,7 +193,7 @@ class: center, middle, inverse
 ## THL to Energy
 
 - Perform fits to peaks at 59.5409 keV and 26.3446 keV (in THL spectrum); Use (erf + normal)-function to model signal and background 
-- Assumption: THL proportional to energy `\(\rightarrow\)` Linear conversion
+- THL proportional to energy `\(\rightarrow\)` Linear conversion
 
 <p style="text-align:center;"><img src="images/THL_Energy.svg" alt="ToT_THL" width="500px" align="middle"/></p> 
 
@@ -222,6 +222,20 @@ Insert estimated conversion parameters in pixel calibration curves
 ## Conversion Example: Ba Fluorescence
 
 <p style="text-align:center;"><img src="images/BaCalib.svg" alt="BaCalib" width="700px" align="middle"/></p> 
+
+---
+
+## Update: Fixed the Glitches
+- Set the amplitude in THL to ToT fit to number of generated test pulses
+- Fixed a bug in THL to corrected THL conversion
+<p style="text-align:center;"><img src="images/THL_ToT_col8.svg" alt="THL_ToT_col8" width="700px" align="middle"/></p>
+
+---
+
+## Measurement: Am-241 w/ Mo-Filter
+- Perform ToT to THL conversion
+- Use Mo-filter in order to get several peaks to convert THL to energy
+<p style="text-align:center;"><img src="images/ToTtoEnergy_AmMo.svg" alt="ToTtoEnergy_AmMo" width="700px" align="middle"/></p>
 
     </textarea>
     <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

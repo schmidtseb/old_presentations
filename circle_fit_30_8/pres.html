@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Energy Calibration</title>
+    <meta charset="utf-8" />
+    
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    
+    <script>
+      // this code is necessary only for showing source in example
+      $(window).load(function() {
+        // position source box in center
+        $('#source').position({
+          of: $('#slideshow')
+        });
+    
+        // show source box
+        $('.show-source > a, #overlay').click(function(e) {
+          e.preventDefault();
+          $('#overlay, #source').toggle(300);
+        });
+    
+        // open source links in new tab/window
+        $('.show-source > a').attr('target', '_blank');
+      });
+    </script>
+    
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Sans);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    
+      body {
+        font-family: 'Droid Sans';
+        font-size: medium;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .small * {
+        font-size: small !important;
+      }
+      code {
+        border-radius: 5px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+      .footnote {
+        position: absolute;
+        font-size: small;
+        bottom: 3em;
+        right: 3em;
+      }
+      /* styling only necessary for displaying source */
+      #source {
+        position: absolute;
+        display: none;
+        font-family: monospace;
+        font-size: medium;
+        background: #333333;
+        color: white;
+        padding: 10px;
+        text-align: left;
+        width: 65%;
+        height: 70%;
+        z-index: 1000;
+      }
+      #overlay {
+        position: absolute;
+        display: none;
+        background: black;
+        width: 100%;
+        height: 100%;
+        opacity: 0.2;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source" readonly>
+class: center, middle, inverse
+
+# Circle Fit
+### 30th August 2018
+
+---
+
+## Random Data of Circular Absorber
+- To develop a method to find the shadow of a circular absorber on the detector the data needs to be well understood
+- Below, an examplary image of a measurement is shown. Dead are not deactivated in this case, but usually are
+- Find MC method to generate random images for absorber at certain position
+- In the following approaches, only the photoelectric effect is considered. Charge sharing between neighboring pixels is neglected
+
+<p style="text-align:center;"><img src="images/data_40kV_10.png" alt="data_40kV_10" width="350px" align="middle"/></p>
+
+---
+
+## 1st Approach: Direct Shadow Generation (fast)
+- Poisson distribute `\(N\)` events on complete pixel matrix
+- Draw coordinates from a Gaussian broadened circle and remove them from the pixel matrix
+- Reversed implementation of Franzi's circle fit routine 
+
+<p style="text-align:center;">
+	<img src="images/data_40kV_10.png" alt="data_40kV_10" width="350px" align="middle"/>
+	<img src="images/circle_fast.png" alt="circle_fast" width="350px" align="middle"/>
+</p>
+
+`\(\rightarrow\)` Approximation: parallel beam geometry
+
+`\(\rightarrow\)` Shadow edges are too soft in this model
+
+---
+
+## 2nd Approach: Ray Tracing (slow)
+- A point source is put at a certain position in front of the detector. Beams are sampled within a pyramidal volume. Attention: end points of normalized direction vectors need to be uniformly distributed on a unit sphere
+- A torus is placed between source and detector
+  - For each beam, it is checked if an intersection took place
+  - If so, intersection points and therefore distance through the absorber is calculated
+  - Absorption probability is determined via Beer-Lambert's law and survival of beam is judged using a random binomial number
+- If a beam hits a pixel, its count is incremented
+
+<p style="text-align:center;">
+	<img src="images/data_40kV_10.png" alt="data_40kV_10" width="350px" align="middle"/>
+	<img src="images/circle_best.png" alt="circle_best" width="350px" align="middle"/>
+</p>
+
+---
+## 2nd Approach: Ray Tracing (slow)
+### Advantages:
+- Judging by eye: MC and data match well
+- Inverse square law is considered inherently. Note: Absorber is centered in MC but shifted in data. Therefore, images on previous slide are not directly comparable
+
+### Disadvantages:
+- Method is slow since each beam needs to be checked for intersections
+- Area of pyramidal beam has to be larger than the detector's surface since distortions take place when irradiating under large angles. This is a consequence of the uniform beam distribution
+
+---
+
+## 3rd Approach: Sampling
+- Divide the detector matrix into a smaller submatrix
+- Instead of single beams, sample beam bundles with `\(N\)` entries for each subpixel. Calculate vector from source to subpixel
+- Get distance from subpixel to source and correct number of events via inverse square law
+- Check for intersections with the absorber. If intersections took place, sample number of surviving events per beam bundle
+- Finally, apply pooling to get correct number of pixels
+
+<p style="text-align:center;">
+    <img src="images/data_40kV_10.png" alt="data_40kV_10" width="300px" align="middle"/>
+	<img src="images/circle_best.png" alt="circle_best" width="300px" align="middle"/>
+	<img src="images/circle_sample.png" alt="circle_best" width="300px" align="middle"/>
+</p>
+
+- Disadvantage: Not able to grasp fine structures in absorber or at an expense of performance
+- Advantage: Basically yields same results as previous method but is a lot faster
+
+---
+# Sampling Method: Examples
+<p style="text-align:center;">
+    <img src="images/sample_matrix.png" alt="sample_matrix" width="550px" align="middle"/>
+</p>
+
+---
+
+## Source Position Reconstruction
+- Application for eye lense dosimeter: 
+  - Warn the user if he's standing directly within the radiation field
+  - Yield direction of the source so the user is able to respond accordingly
+- Therefore, need a quick method to reconstruct the direction of the source
+  - Fit approach: Find absorbers shadow using an analytic model in a fit.   
+   `\(\rightarrow\)` Works well, but not responsive
+  - Deep learning approach: Deep Convolutional Neural Network (DCNN)   
+   `\(\rightarrow\)` If it works, very responsive
+
+---
+
+## Preparation of MC Data
+Generate 75k images for random source positions  
+
+Attention must be paid when sampling the positions: high point density increases importance of a region (may be a wanted effect)  
+
+`\(\rightarrow\)` Distribute uniformly in spherical coordinates
+
+<p style="text-align:center;">
+    <img src="images/spherical_dist.png" alt="spherical_dist" width="900px" align="middle"/><br>
+</p>
+
+---
+## Preparation of MC Data (Cartesian Coordinates)
+
+<p style="text-align:center;">
+	<img src="images/cart_dist.png" alt="cart_dist" width="900px" align="middle"/><br>
+	<img src="images/cart_heat.png" alt="cart_heat" width="900px" align="middle"/>
+</p>
+
+---
+
+## circleLearn: Single Detector
+Use MC data of a single detector w/ circular absorber
+### Model Definition:
+- 
+
+---
+
+## Data Augmentation
+
+---
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+    
+    <script>
+      var slideshow = remark.create({
+        // Set the slideshow display ratio
+        // Default: '4:3'
+        // Alternatives: '16:9', ...
+        ratio: '16:9',
+        
+        // Navigation options
+        navigation: {
+          // Enable or disable navigating using scroll
+          // Default: true
+          // Alternatives: false
+          scroll: true,
+        
+          // Enable or disable navigation using touch
+          // Default: true
+          // Alternatives: false
+          touch: true,
+        
+          // Enable or disable navigation using click
+          // Default: false
+          // Alternatives: true
+          click: false
+        },
+        
+        // Customize slide number label, either using a format string..
+        slideNumberFormat: 'Slide %current% of %total%',
+        // .. or by using a format function
+        slideNumberFormat: function (current, total) {
+          return 'Slide ' + current + ' of ' + total;
+        },
+        
+        // Enable or disable counting of incremental slides in the slide counting
+        countIncrementalSlides: true
+      }); 
+    
+      // Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+    
+      MathJax.Hub.Configured();
+    
+    </script>
+      </body>
+    </html>
