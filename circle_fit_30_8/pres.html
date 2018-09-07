@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Energy Calibration</title>
+    <title>Circle Fit</title>
     <meta charset="utf-8" />
-    
+
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     
@@ -132,7 +132,6 @@ class: center, middle, inverse
 	<img src="images/data_40kV_10.png" alt="data_40kV_10" width="350px" align="middle"/>
 	<img src="images/circle_best.png" alt="circle_best" width="350px" align="middle"/>
 </p>
-
 ---
 ## 2nd Approach: Ray Tracing (slow)
 ### Advantages:
@@ -166,7 +165,6 @@ class: center, middle, inverse
 <p style="text-align:center;">
     <img src="images/sample_matrix.png" alt="sample_matrix" width="550px" align="middle"/>
 </p>
-
 ---
 
 ## Source Position Reconstruction
@@ -182,7 +180,7 @@ class: center, middle, inverse
 ---
 
 ## Preparation of MC Data
-Generate 75k images for random source positions  
+Generate many images for random source positions  
 
 Attention must be paid when sampling the positions: high point density increases importance of a region (may be a wanted effect)  
 
@@ -191,7 +189,6 @@ Attention must be paid when sampling the positions: high point density increases
 <p style="text-align:center;">
     <img src="images/spherical_dist.png" alt="spherical_dist" width="900px" align="middle"/><br>
 </p>
-
 ---
 ## Preparation of MC Data (Cartesian Coordinates)
 
@@ -202,17 +199,76 @@ Attention must be paid when sampling the positions: high point density increases
 
 ---
 
+## Data Augmentation
+Generate more training data via augmentation. Use existing images and labels and manipulate them by:
+- multiple rotations about `\(90^\circ\)`
+- mirroring at the `\(x\)`- and `\(y\)`-axis
+
+Another option is to generate initial images without noise and to apply augmentation:
+- modify total number of counts in the image
+- resample the noise per pixel
+
+<p style="text-align:center;">
+	<img src="images/im_aug.png" alt="cart_dist" width="300px" align="middle"/>
+	<img src="images/im_aug_rot90.png" alt="cart_heat" width="300px" align="middle"/>
+</p>
+
+---
+
 ## circleLearn: Single Detector
 Use MC data of a single detector w/ circular absorber
-### Model Definition:
+### Data: 
+- 250k events for different source positions
 - 
 
+### Model Definition:
+- Batch size of 100
+- Input images of shape 16 x 16
+- 10 convolutional layers with a kernel size of 3 x 3 each and filter sizes of   
+  2 x 8, 2 x 16, 2 x 32, 2x 64 and 2 x 128
+- Flattening layer with succeeding dense layers of sizes   
+  64, 32, 8 and finally 2 in order to perform regression on angles `\(\phi\)` and `\(\theta\)`
+
 ---
 
-## Data Augmentation
+<p style="text-align:center;">
+	<img src="images/single_nw.png" alt="cart_dist" width="1024px" align="middle"/><br>
+</p>
 
 ---
 
+## Loss Function
+Usually, `\(\mathrm{MSE})\` is used to calculate the loss
+$$ L_{\mathrm{MSE}} = 1/N \sum_{i = 1}^N (x_i - \hat x_i)**2 $$
+Need to consider periodicity of angle '\(\phi\)'
+
+$$ $$
+
+---
+
+## CircleLearn: Multi
+
+--- 
+
+## MC Data
+
+---
+
+## Visibility
+
+---
+
+## Results
+
+---
+
+## Model
+
+<p style="text-align:center;">
+	<img src="images/single_nw_deep.png" alt="cart_dist" width="1024px" align="middle"/><br>
+</p>
+
+---
 
     </textarea>
     <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
