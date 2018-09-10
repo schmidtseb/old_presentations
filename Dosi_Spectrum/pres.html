@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DosiMode Energy Spectrum</title>
+    <meta charset="utf-8" />
+    
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    
+    <script>
+      // this code is necessary only for showing source in example
+      $(window).load(function() {
+        // position source box in center
+        $('#source').position({
+          of: $('#slideshow')
+        });
+    
+        // show source box
+        $('.show-source > a, #overlay').click(function(e) {
+          e.preventDefault();
+          $('#overlay, #source').toggle(300);
+        });
+    
+        // open source links in new tab/window
+        $('.show-source > a').attr('target', '_blank');
+      });
+    </script>
+    
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Sans);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    
+      body {
+        font-family: 'Droid Sans';
+        font-size: medium;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .small * {
+        font-size: small !important;
+      }
+      code {
+        border-radius: 5px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+      .footnote {
+        position: absolute;
+        font-size: small;
+        bottom: 3em;
+        right: 3em;
+      }
+      /* styling only necessary for displaying source */
+      #source {
+        position: absolute;
+        display: none;
+        font-family: monospace;
+        font-size: medium;
+        background: #333333;
+        color: white;
+        padding: 10px;
+        text-align: left;
+        width: 65%;
+        height: 70%;
+        z-index: 1000;
+      }
+      #overlay {
+        position: absolute;
+        display: none;
+        background: black;
+        width: 100%;
+        height: 100%;
+        opacity: 0.2;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source" readonly>
+class: center, middle, inverse
+
+# DosiMode Energy Spectrum
+
+### 9th September 2018
+
+---
+
+## Random Bin Edges
+- Measured ToT values are counted in 16 bins with user specified edges
+- Usually, pixels are given same edges after energy calibration
+- Idea: Set edges randomly for each pixel and gain
+  - robustness against energy calibration uncertainties
+  - improved energy spectral information of irradiated photons
+- ToT vs. binned ToT: reading ToT only shows last recorded entry, while in binning mode each event is registered
+  `\(\rightarrow\)` Either high statistics or high precision but not both
+- Example: Uniform bin edges. Distance distribution between two edges shown below
+
+<p style="text-align:center;"><img src="images/binWidthDistUniform.svg" alt="binWidthDistUniform" width="500px" align="middle"/></p>
+
+---
+
+## Energy Spectrum Example
+- Generate exemplary energy spectrum
+- Set random, uniform bin edges in range 12 - 200 keV. The smaller the range the higher the precision later
+- Every pixel detects this spectrum with a Poissonian uncertainty for each bin
+
+<p style="text-align:center;"><img src="images/spec_in.png" alt="spec_in" width="500px" align="middle"/></p>
+
+---
+
+## Energy Histogram Combination
+- Simulate behavior of binning state machine by histogramming data of each pixel with the specified bin edges
+- Combine single pixel histograms to a combined one with 16 x 192 edges (only using large pixels atm)
+- Here, for two histograms, overlapping bins are split and entries are distributed accordingly to new bins
+
+<p style="text-align:center;"><img src="images/pixel_hist.png" alt="pixel_hist" width="700px" align="middle"/></p>
+
+---
+
+## Energy Histogram Rebinning
+- After histograms are combined, resulting histogram looks rather noisy due to the different bin sizes  
+`\(\rightarrow\)` Rebinning of the combined histogram
+- This is the result the detector will yield  
+`\(\rightarrow\)` Convoluted energy spectrum
+
+<p style="text-align:center;"><img src="images/spec_conv.png" alt="spec_conv" width="500px" align="middle"/></p>
+
+---
+
+## Convolution Window Estimation
+- Energy spectrum is convoluted with certain window due to combination of random bin edges
+- To yield window shape, create perfect, mono-energetic energy spectrum and perform histogram combination
+- Shift energy of spectrum and apply fit with window function to get mean value of `\(\tau\)`
+$$ w(E) = A \cdot \mathrm{exp}\left( -\frac{1}{\tau} \cdot |E - \mu| \right) $$
+
+<p style="text-align:center;"><img src="images/window_fit.png" alt="window_fit" width="400px" align="middle"/></p>
+
+---
+
+## Wiener Deconvolution
+- In theory, deconvolution is a division in the frequency domain, i.e. if `\(\hat h = \hat f \hat g\)` it follows that `\(\hat g = \frac{\hat h}{\hat f}\)`
+- But, `\(\hat f \neq 0\)` has to be satisfied which is not possible
+- Avoid division by 0 via regularization (e.g. Tikhonov) or a Wiener filter
+- Wiener-filter reduces frequencies according to their SNR which is set via a constant
+
+---
+
+## Deconvolution Results
+Result depends on chosen bin width of rebinning process  
+`\(\rightarrow\)` Bin width too small: loss of information; Bin width too large: noisy data which is amplified in deconvolution 
+
+<p style="text-align:center;"><img src="images/signal_process.png" alt="signal_process" width="600px" align="middle"/></p>
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+    
+    <script>
+      var slideshow = remark.create({
+        // Set the slideshow display ratio
+        // Default: '4:3'
+        // Alternatives: '16:9', ...
+        ratio: '16:9',
+        
+        // Navigation options
+        navigation: {
+          // Enable or disable navigating using scroll
+          // Default: true
+          // Alternatives: false
+          scroll: true,
+        
+          // Enable or disable navigation using touch
+          // Default: true
+          // Alternatives: false
+          touch: true,
+        
+          // Enable or disable navigation using click
+          // Default: false
+          // Alternatives: true
+          click: false
+        },
+        
+        // Customize slide number label, either using a format string..
+        slideNumberFormat: 'Slide %current% of %total%',
+        // .. or by using a format function
+        slideNumberFormat: function (current, total) {
+          return 'Slide ' + current + ' of ' + total;
+        },
+        
+        // Enable or disable counting of incremental slides in the slide counting
+        countIncrementalSlides: true
+      }); 
+    
+      // Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+    
+      MathJax.Hub.Configured();
+    
+    </script>
+      </body>
+    </html>
+

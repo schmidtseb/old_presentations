@@ -3,7 +3,7 @@
   <head>
     <title>Circle Fit</title>
     <meta charset="utf-8" />
-
+    
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     
@@ -153,29 +153,31 @@ class: center, middle, inverse
 
 <p style="text-align:center;">
     <img src="images/data_40kV_10.png" alt="data_40kV_10" width="300px" align="middle"/>
-	<img src="images/circle_best.png" alt="circle_best" width="300px" align="middle"/>
-	<img src="images/circle_sample.png" alt="circle_best" width="300px" align="middle"/>
+    <img src="images/circle_best.png" alt="circle_best" width="300px" align="middle"/>
+    <img src="images/circle_sample.png" alt="circle_best" width="300px" align="middle"/>
 </p>
 
 - Disadvantage: Not able to grasp fine structures in absorber or at an expense of performance
 - Advantage: Basically yields same results as previous method but is a lot faster
 
 ---
+
 # Sampling Method: Examples
 <p style="text-align:center;">
     <img src="images/sample_matrix.png" alt="sample_matrix" width="550px" align="middle"/>
 </p>
+
 ---
 
 ## Source Position Reconstruction
 - Application for eye lense dosimeter: 
-  - Warn the user if he's standing directly within the radiation field
+  - Warn the user if he is directly looking into the beam
   - Yield direction of the source so the user is able to respond accordingly
 - Therefore, need a quick method to reconstruct the direction of the source
   - Fit approach: Find absorbers shadow using an analytic model in a fit.   
-   `\(\rightarrow\)` Works well, but not responsive
+     `\(\rightarrow\)` Works well, but not responsive enough in some cases
   - Deep learning approach: Deep Convolutional Neural Network (DCNN)   
-   `\(\rightarrow\)` If it works, very responsive
+     `\(\rightarrow\)` If it works, very responsive
 
 ---
 
@@ -189,9 +191,11 @@ Attention must be paid when sampling the positions: high point density increases
 <p style="text-align:center;">
     <img src="images/spherical_dist.png" alt="spherical_dist" width="900px" align="middle"/><br>
 </p>
----
-## Preparation of MC Data (Cartesian Coordinates)
 
+---
+
+## Preparation of MC Data (Cartesian Coordinates)
+Conversion to Cartesian coordinates
 <p style="text-align:center;">
 	<img src="images/cart_dist.png" alt="cart_dist" width="900px" align="middle"/><br>
 	<img src="images/cart_heat.png" alt="cart_heat" width="900px" align="middle"/>
@@ -200,7 +204,7 @@ Attention must be paid when sampling the positions: high point density increases
 ---
 
 ## Data Augmentation
-Generate more training data via augmentation. Use existing images and labels and manipulate them by:
+Easily generate more training data via augmentation. Use existing images and labels and manipulate them by:
 - multiple rotations about `\(90^\circ\)`
 - mirroring at the `\(x\)`- and `\(y\)`-axis
 
@@ -218,18 +222,26 @@ Another option is to generate initial images without noise and to apply augmenta
 ## circleLearn: Single Detector
 Use MC data of a single detector w/ circular absorber
 ### Data: 
-- 250k events for different source positions
-- 
+- 250k events for different source positions, distributed uniformly in spherical coordinates
+- First test: source within short distance to the detector (about 10 cm)
+- Applied augmentation to obtain more training data
+- Sampled dead pixels into the images to gain robustness
 
 ### Model Definition:
-- Batch size of 100
+- Batch size of 100 images
 - Input images of shape 16 x 16
-- 10 convolutional layers with a kernel size of 3 x 3 each and filter sizes of   
-  2 x 8, 2 x 16, 2 x 32, 2x 64 and 2 x 128
+- 10 convolutional layers with a kernel size of 3 x 3 each and   
+  filter sizes of 2 x 8, 2 x 16, 2 x 32, 2x 64 and 2 x 128
+- To prevent overtraining: 
+  - Batch normalization after each convolutional layer
+  - L2 regularization
 - Flattening layer with succeeding dense layers of sizes   
   64, 32, 8 and finally 2 in order to perform regression on angles `\(\phi\)` and `\(\theta\)`
+- No pooling applied since image size is small
 
 ---
+
+## First model
 
 <p style="text-align:center;">
 	<img src="images/single_nw.png" alt="cart_dist" width="1024px" align="middle"/><br>
@@ -237,38 +249,116 @@ Use MC data of a single detector w/ circular absorber
 
 ---
 
-## Loss Function
-Usually, `\(\mathrm{MSE})\` is used to calculate the loss
-$$ L_{\mathrm{MSE}} = 1/N \sum_{i = 1}^N (x_i - \hat x_i)**2 $$
-Need to consider periodicity of angle '\(\phi\)'
+## Improved model
 
-$$ $$
-
----
-
-## CircleLearn: Multi
-
---- 
-
-## MC Data
-
----
-
-## Visibility
+<p style="text-align:center;">
+	<img src="images/single_nw_deep.png" alt="cart_dist" width="800px" align="middle"/><br>
+</p>
 
 ---
 
 ## Results
-
----
-
-## Model
-
+- Apply trained network to measurement data
+- Currently, data and MC do not match since circular detector was not centered during measurements
+- Arrows point in direction of the source 
+`\(\rightarrow\)` On first sight: seems to work
+- Mean deviation of `\(\theta < 1^\circ\)`, similar to regular fit 
 <p style="text-align:center;">
-	<img src="images/single_nw_deep.png" alt="cart_dist" width="1024px" align="middle"/><br>
+	<img src="images/single_result_1.png" alt="single_result_1" width="230px" align="middle"/>
+	<img src="images/single_result_2.png" alt="single_result_1" width="230px" align="middle"/>
+	<img src="images/single_result_3.png" alt="single_result_1" width="230px" align="middle"/>
+	<img src="images/single_result_4.png" alt="single_result_1" width="230px" align="middle"/>
 </p>
 
 ---
+
+## CircleLearn: Multi
+- Eye lense dosimeter consists of at least two detectors, so why not using stereoscopic vision?  
+`\(\rightarrow\)` Improvement of precision
+- Slightly tilt detectors, place origin at the center of the system
+
+<p style="text-align:center;">
+	<img src="images/multi_sensor_3d.png" alt="multi_sensor_3d" width="400px" align="middle"/>
+</p>
+
+---
+
+## CircleMulti: MC Data
+- Like previously, generate random source positions uniformly in spherical coordinates
+- Coordinates are sampled so a shadow is visible  
+`\(\rightarrow\)` Works for about 90% of all image sets
+- Additionally, filter by visibility via histograms of each image  
+`\(\rightarrow\)` Check condition which median and mean have to fulfill
+- If no shadow is visible, discard event for trainig. Here,
+  - source either not in field of view
+  - or number of counts too low (i.e. no harm for the user)
+
+<p style="text-align:center;">
+	<img src="images/isCircle_1.png" alt="isCircle_1" width="400px" align="middle"/>
+	<img src="images/isCircle_2.png" alt="isCircle_2" width="400px" align="middle"/>
+</p>
+
+---
+
+## CircleMulti: MC After Filtering
+
+<p style="text-align:center;">
+	<img src="images/spherical_dist_vis.png" alt="isCircle_2" width="800px" align="middle"/><br>
+	<img src="images/spherical_heat_vis.png" alt="isCircle_1" width="800px" align="middle"/>
+</p>
+
+---
+
+## CircleMulti: Examples
+- Network model similar to two single detector models. Each image is processed by a branch and results are concatenated prior to the dense layers
+- Examples show evaluation after training on MC data. Dark arrow indicates the the true label of `\(\phi\)` 
+- Center image shows deviation since source is directly above the origin
+
+<p style="text-align:center;">
+	<img src="images/0_3m_eval_example1.png" alt="isCircle_2" width="200px" align="middle"/>
+	<img src="images/0_3m_eval_example2.png" alt="isCircle_2" width="200px" align="middle"/>
+	<img src="images/0_3m_eval_example3.png" alt="isCircle_2" width="200px" align="middle"/>
+</p>
+
+---
+
+## CircleMulti: Results
+- Restrict source positions within a range of 1m to the origin of the system
+- Important: Normalize radius of source position so it lies in the same range as the angles  
+  `\(\rightarrow\)` Otherwise biasing of a coordinates is introduced
+- Plots show deviation, i.e. difference, of coordinates  
+  `\(\rightarrow\)` Symmetric exponential decay since deviation is difference of uniformly distributed values
+
+<p style="text-align:center;">
+	<img src="images/1m_deviation.png" alt="isCircle_2" width="330px" align="middle"/>
+	<img src="images/1m_deviation_cart.png" alt="isCircle_2" width="330px" align="middle"/>
+	<img src="images/1m_rad_deviation.png" alt="isCircle_2" width="330px" align="middle"/>
+</p>
+
+---
+
+## CircleMulti: Results (Radial Dependence)
+
+<p style="text-align:center;">
+	<img src="images/deviationRad_sphere_1m.png" alt="isCircle_2" width="830px" align="middle"/>
+	<img src="images/deviationRad_cart_1m.png" alt="isCircle_2" width="330px" align="middle"/>
+</p>
+
+---
+
+### CircleMulti: Source Movement Example
+
+<p style="text-align:center;">
+<video width="320" controls autoplay>
+  <source src="images/vid1.mp4" type="video/mp4">
+</video>
+<video width="270" controls autoplay>
+  <source src="images/vid3.mp4" type="video/mp4">
+</video><br>
+<video width="620" controls autoplay>
+  <source src="images/vid2.mp4" type="video/mp4">
+</video>
+</p>
 
     </textarea>
     <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
