@@ -96,7 +96,7 @@ class: center, middle, inverse
 
 ## Random Data of Circular Absorber
 - To develop a method to find the shadow of a circular absorber on the detector the data needs to be well understood
-- Below, an examplary image of a measurement is shown. Dead are not deactivated in this case, but usually are
+- Below, an examplary image of a measurement is shown. Dead pixels are not deactivated in this case, but usually are
 - Find MC method to generate random images for absorber at certain position
 - In the following approaches, only the photoelectric effect is considered. Charge sharing between neighboring pixels is neglected
 
@@ -170,14 +170,11 @@ class: center, middle, inverse
 ---
 
 ## Source Position Reconstruction
-- Application for eye lense dosimeter: 
-  - Warn the user if he is directly looking into the beam
-  - Yield direction of the source so the user is able to respond accordingly
-- Therefore, need a quick method to reconstruct the direction of the source
-  - Fit approach: Find absorbers shadow using an analytic model in a fit.   
-     `\(\rightarrow\)` Works well, but not responsive enough in some cases
-  - Deep learning approach: Deep Convolutional Neural Network (DCNN)   
-     `\(\rightarrow\)` If it works, very responsive
+Need a quick method to reconstruct the direction of the source
+- Fit approach: Find absorbers shadow using an analytic model in a fit.   
+   `\(\rightarrow\)` Works well, but not responsive enough in some cases
+- Deep learning approach: Deep Convolutional Neural Network (DCNN)   
+   `\(\rightarrow\)` If it works, very responsive
 
 ---
 
@@ -273,8 +270,8 @@ Use MC data of a single detector w/ circular absorber
 ---
 
 ## CircleLearn: Multi
-- Eye lense dosimeter consists of at least two detectors, so why not using stereoscopic vision?  
-`\(\rightarrow\)` Improvement of precision
+- Let's try stereoscopic vision  
+  `\(\rightarrow\)` Improvement of precision
 - Slightly tilt detectors, place origin at the center of the system
 
 <p style="text-align:center;">
