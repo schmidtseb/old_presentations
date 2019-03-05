@@ -1,0 +1,626 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Temperature Update</title>
+    <meta charset="utf-8" />
+    
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    
+    <script>
+      // this code is necessary only for showing source in example
+      $(window).load(function() {
+        // position source box in center
+        $('#source').position({
+          of: $('#slideshow')
+        });
+    
+        // show source box
+        $('.show-source > a, #overlay').click(function(e) {
+          e.preventDefault();
+          $('#overlay, #source').toggle(300);
+        });
+    
+        // open source links in new tab/window
+        $('.show-source > a').attr('target', '_blank');
+      });
+    </script>
+    
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Sans);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    
+      body {
+        font-family: 'Droid Sans';
+        font-size: medium;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .small * {
+        font-size: small !important;
+      }
+      code {
+        border-radius: 5px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+      .footnote {
+        position: absolute;
+        font-size: small;
+        bottom: 3em;
+        right: 3em;
+      }
+      /* styling only necessary for displaying source */
+      #source {
+        position: absolute;
+        display: none;
+        font-family: monospace;
+        font-size: medium;
+        background: #333333;
+        color: white;
+        padding: 10px;
+        text-align: left;
+        width: 65%;
+        height: 70%;
+        z-index: 1000;
+      }
+      #overlay {
+        position: absolute;
+        display: none;
+        background: black;
+        width: 100%;
+        height: 100%;
+        opacity: 0.2;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source" readonly>
+class: center, middle, inverse
+
+# Temperature Update
+
+### 12th February 2019
+
+---
+
+##Temperature calibration
+
+- DPX shows strong dependence on temperature. This leads to:
+
+  - incorrect measurement of ToT and therefore dose
+
+  - broadening of the measured spectrum since every pixel behaves differently
+
+  - noisy pixels when energy too low or high
+
+- Need convinent method to get rid of temperature dependence `\(\rightarrow\)` Calibration!
+
+- Need to set THL for which:
+
+  - V_ThA does not reach noise level
+
+  - no jumps of V_ThA due to the sawtooth-nature of the voltage occur
+
+- Disadvantage: sensitivity for low energy photons is lost
+
+- Idea: Measure ToT as a function of the temperature and adjust accordingly
+
+---
+
+## ToT Measurements
+
+- DPX-Board is warmed using resistor heating
+- For a quasi-constant temperature, generate multiple test pulses for a single pixel column and measure the mean ToT values for each pixel
+- Perform described measurement for multiple temperatures
+- Mean ToT value varies linearly with the temperature
+
+But...
+
+<p style="text-align:center;"><img src="images/temperatureToT_25.svg" alt="Temperature" width="800px" align="middle"/></p>
+
+---
+
+## ToT Measurements (Part 2)
+
+Slope changes drastically with the test pulse energy (and therefore mean ToT)!
+
+- Need to also perform measurements for different mean ToT values
+- Later, want to find function to transform measured ToT value and temperature to ToT value at a certain temperature `\(T_\mathrm{norm}\)` (here: 1570 ADC, indicated by blue dashed line)
+- Describe each linear function for the pixels by two parameters:
+  - Offset: point of intersection with `\(T_\mathrm{norm}\)` on `\(\mu_\mathrm{ToT}\)`-axis
+  - Slope
+
+<p style="text-align:center;"><img src="images/temperatureToT_125.svg" alt="Temperature" width="800px" align="middle"/></p>
+
+---
+
+## Pixel parameters
+
+- Previously defined parameters seem to behave almost linear dependent
+
+- Clearly visible: the four small pixels in the column
+
+<p style="text-align:center;"><img src="images/ToT_fits.svg" alt="Temperature" width="600px" align="middle"/></p>
+
+---
+
+## ToT Correction
+
+Correct ToT values via
+
+`\(\Large{ \mathrm{ToT}_\mathrm{corr}(\mathrm{ToT},\, T) = -\frac{(T_\mathrm{norm} - T)t + \mathrm{ToT}}{(T_\mathrm{norm} - T)m - 1},} \)`
+
+with:
+
+- `\(t\)` - offset
+- `\(m\)` - slope
+
+---
+
+## High Temperature Test
+- Units are in DAC values
+
+- Put resistor heating directly on top of a detector and let it heat to about 80°C
+
+- Blue colors belong to small pixels: remaining stable, also for high temperatures
+
+- Some pixels start to get noisy, but not all of them!
+
+  <p style="text-align:center;"><img src="images/highTemperature_PLL.png" alt="highTemperature_PLL" height="350px" align="middle"/></p>
+
+---
+
+## ToT Correction
+- Long-term measurement of Am241 while cooling down
+
+- Measured ToT values of most pixels increase
+
+- Energy dependence shows since the higher the energy the greater the shift
+<p style="text-align:center;"><img src="images/Am_ToT_cool.svg" alt="Am_ToT_cool" height="350px" align="middle"/></p>
+
+---
+
+## alphaPoly
+
+- Describe conversion factors via functions (one for each detector independently)
+
+- Choose polynomial function of degree `\(n\)`
+
+  $$ \alpha(k) = \sum_{i=0}^n \alpha_i k^i $$
+
+  where `\(k \in [0, 15]\)` is used for later discretization
+
+- Number of degrees of freedom is reduced to `\(3(n + 1)\)`
+
+- Conversion factors do not change abruptly between neighbouring bins
+
+---
+
+## alphaPoly Conversion Factors
+
+- Set bin edges of DosiMode as usual
+
+- Evaluate polynomial at mean energies of the bins and calculate dose like always
+
+- Plot shows comparison of standard and alphaPoly conversion factors
+
+<p style="text-align:center;"><img src="images/alphaPolyCompare.svg" alt="poly_conversion" height="350px" align="middle"/></p>
+
+---
+
+## alphaPoly Comparison
+
+Left: standard conversion factors
+
+Right polynomial conversion factors
+
+<p style="text-align:center;"><img src="images/dose_normal.png" alt="dose_normal" height="300px" align="middle"/>
+<img src="images/dose_poly.png" alt="dose_poly" height="300px" align="middle"/></p>
+
+---
+
+## Dose Correction
+
+- Easy to correct ToT values but dose data is stored in a histogram of 16 bins
+
+- Unable to apply ToT shift to bin edges:
+
+  - shape of the distribution is unknown: counts will wander from one bin to the other when temperature is changed
+
+  - histogram is discrete and consisting of different sized bins. If temperature shift takes place, jumps in the dose might take place
+
+- Leave dose histogram as is and shift alphaPoly factors instead!
+  
+  `\(\rightarrow\)` continuous function!
+
+---
+
+## MC Generation
+
+- Generate random Gaussian distributed ToT-values with a specified mean and standard deviation
+
+- Data contains two peaks, one at the mean, one at the half of the mean
+
+- Additional background is provided via uniform distribution
+
+- ToT values are binned using the standard bin edges of DosiMode
+
+<p style="text-align:center;">
+<img src="images/MC/reco_example_mean_100_sigma_5.svg" alt="reco_example_5" height="300px" align="middle"/>
+<img src="images/MC/reco_example_mean_100_sigma_30.svg" alt="reco_example_30" height="300px" align="middle"/>
+</p>
+
+---
+
+## MC Correction
+
+- Calculate dose of binned events
+
+- Assumption: measured ToT shift of a pixel is valid
+
+- Set a temperature and apply ToT-shifts according to measurements
+
+- Scale y-axis of alphaPoly inversely to ToT-shift and recalculate dose and compare to initial dose
+
+<p style="text-align:center;">
+<img src="images/MC/detector_dose_deviation_200.svg" alt="reco_example_5" height="300px" align="middle"/>
+<img src="images/MC/detector_dose_deviation_-200.svg" alt="reco_example_30" height="300px" align="middle"/>
+</p>
+
+---
+
+## MC Correction
+
+- Top: cool, Bottom: warm
+
+<p style="text-align:center;">
+<img src="images/MC/detector_dose_deviation_im_200.svg" alt="reco_example_5" height="250px" align="middle"/>
+<img src="images/MC/detector_dose_deviation_im_-200.svg" alt="reco_example_30" height="250px" align="middle"/>
+</p>
+
+---
+
+## Measurement: Heating 
+
+- Am241 with thick PMMA layer in front
+
+- Resistor heating on top of Slot 1
+
+- Plot shows trend of temperature over time (heated to ~80°, y-axis inverted)
+
+<p style="text-align:center;">
+<img src="images/heating/temperature.svg" alt="temperature" height="350px" align="middle"/>
+</p>
+
+---
+
+## Measurement (Heating): alphaPoly Correction
+
+- ToT values are shifted towards lower energies
+
+- Scale x-axis of alphaPoly-function inversely to correct dose
+
+<p style="text-align:center;">
+	<video width="600" controls autoplay>
+	  <source src="images/heating/pixel8.mp4" type="video/mp4">
+	</video>
+</p>
+
+---
+
+## Measurement (Heating): Dose Correction
+
+- Apply described procedure to correct dose for each measurement
+
+- Dose is normalized to mean value of corrected dose
+
+- Fluctuation is large, but framerate was only ~7.3 mHz
+
+  `\(\rightarrow\)` Can be increased to ~1 Hz which leads to more precise measurement of temperature and therefore dose
+
+<p style="text-align:center;">
+<img src="images/heating/dose_correction.svg" alt="dose_correction" height="350px" align="middle"/>
+</p>
+
+---
+
+## Measurement: Cooling 
+
+- Repeat measurement: same setup but now detector is cooled down in refrigerator
+
+- Important to wait until detector reaches thermodynamic equilibrium (housing and caps are isolating)
+
+- Afterwards, turn fridge off and start measurement
+
+- Approx. temperature range: -20°C to 20°C
+
+<p style="text-align:center;">
+<img src="images/cooldown/temperature_cooldown.svg" alt="temperature_cooldown" height="350px" align="middle"/>
+</p>
+
+---
+
+## Measurement (Cooling): Correction
+
+- Apply correction to each pixel and every detector
+
+- Compare standard and alphaPoly dose
+
+- First slot (vac) shows a large deviation starting at about frame 1500
+
+<p style="text-align:center;">
+<img src="images/cooldown/dose_corr_all.svg" alt="dose_corr_all" height="350px" align="middle"/>
+</p>
+
+---
+
+## Measurement (Cooling): alphaPoly Correction
+
+<p style="text-align:center;">
+	<video width="800" controls autoplay>
+	  <source src="images/cooldown/cooldown_all.mp4" type="video/mp4">
+	</video>
+</p>
+
+---
+
+## Measurement (Cooling): Vac Correction
+
+Measurement can be split into three regions:
+
+- Noise: too cold, so pixels start to get noisy `\(\rightarrow\)` try to apply `\(n\sigma\)`-filter to improve
+
+- Shift of full absorption peak: mean of peak wanders from one bin to next
+
+- Close to calibration temperature: dose remains almost stable
+
+<p style="text-align:center;">
+<img src="images/cooldown/dose_corr_al_text.svg" alt="dose_corr_al_text" height="350px" align="middle"/>
+</p>
+
+---
+
+## Measurement (Cooling): Comparison of methods
+
+- Compare standard, alphaPoly and dose-corrected alphaPoly factors
+
+- Dose per slot and total dose, each normalized to corresponding mean value
+
+- Standard and alphaPoly method yield about the same results (shows agreement of both factor sets)
+
+- Large improvement of for temperature corrected alphaPoly dose
+
+<p style="text-align:center;">
+<img src="images/cooldown/dose_comparison.svg" alt="dose_comparison" width="1000px" align="middle"/>
+</p>
+
+---
+
+## Measurement (Cooling): Comparison of methods
+
+|  | standard | alphaPoly | dose correction |
+|---|----------|-----------|-----------------|
+| Mean dose (uSv) | 4.53 +/- 0.42 | 3.99 +/- 0.34 | 4.61 +/ 0.08 |
+| Extrema (uSv) | (3.24, 5.13) | (2.71, 4.54) | (4.40, 4.98) |
+| Extrema norm. (uSv)| (0.72, 1.13) | (0.68, 1.14) | (0.95, 1.08) |
+
+<p style="text-align:center;">
+<img src="images/cooldown/dose_comparison.svg" alt="dose_comparison" width="1000px" align="middle"/>
+</p>
+
+---
+
+## ToT vs. Energy Measurement
+
+- Apply resistor heating to detector and start heating
+
+- Assume temperature is constant for a measurement
+
+- Use test pulses (energy with arbitrary units) and measure ToT for different temperatures
+
+- There is an energy threshold for which warm and cold measurements intersect
+
+<p style="text-align:center;">
+<img src="images/pulse_shape_meas/ToT_vs_energy_pixel6.svg" alt="ToT_vs_energy_pixel6" height="300px" align="middle"/>
+<img src="images/pulse_shape_meas/ToT_vs_energy_detail_pixel6.svg" alt="ToT_vs_energy_detail_pixel6" height="300px" align="middle"/>
+</p>
+
+---
+
+## ToT vs. Energy Pixels
+
+- Different pixels show different behaviour
+
+- Intersection takes place but may be not that obvious due to used THL value
+
+<p style="text-align:center;">
+<img src="images/pulse_shape_meas/ToT_vs_energy_detail_pixel6.svg" alt="ToT_vs_energy_detail_pixel6" height="300px" align="middle"/>
+<img src="images/pulse_shape_meas/ToT_vs_energy_detail_pixel3.svg" alt="ToT_vs_energy_detail_pixel3" height="300px" align="middle"/>
+</p>
+
+---
+
+## ToT vs. Temperature Measurement
+
+- Cast horizontal lines of previous plots and get intersections
+
+- Yields previously shown plots of ToT vs. temperature
+
+<p style="text-align:center;">
+<img src="images/pulse_shape_meas/temperature_vs_ToT_pixel6.svg" alt="temperature_vs_ToT_pixel6" height="300px" align="middle"/>
+<img src="images/pulse_shape_meas/temperature_vs_ToT_pixel3.svg" alt="temperature_vs_ToT_pixel3" height="300px" align="middle"/>
+</p>
+
+---
+
+## Motiviation: MOSFET Temperature Dependence
+
+- Intersection of warm and cold lines shows that there exists an energy for which the behaviour of the circuitry changes
+
+- BJTs and MOSFETs show a similar temperature dependence
+
+  `\(\rightarrow\)` There is a gate-source voltage for which the temperature coefficient is zero!
+
+<p style="text-align:center;">
+<img src="images/pulse_shape/mosfet_IDS3_vs_UGS3.svg" alt="mosfet_IDS3_vs_UGS3" height="350px" align="middle"/>
+</p>
+
+---
+
+## Solution of CSA Circuit
+
+CSA = charge sensitive amplifier
+
+<p style="text-align:center;">
+<img src="images/circuit.png" alt="circuit" height="500px" align="middle"/>
+</p>
+
+---
+
+## Pulse Shape Model Agreement
+
+- Solution is a first order ODE depending on 12 paramaters
+
+- Check agreement of model and reality by applying to data (simulations made by Winnie)
+
+<p style="text-align:center;">
+<img src="images/pulse_shape/winnie_fit.svg" alt="winnie_fit" height="450px" align="middle"/>
+</p>
+
+---
+
+## Pulse Shape: ToT vs. Energy
+
+- Calculate shape of a pulse by solving ODE via RK4
+
+- Set a threshold voltage and let it intersect with pulse in order to get corresponding ToT value
+
+<p style="text-align:center;">
+<img src="images/pulse_shape/temperature_calib_80deg.svg" alt="temperature_calib_80deg" height="450px" align="middle"/>
+</p>
+
+---
+
+## Pulse Shape Model Agreement Pt. 2
+
+Apply model to mean calibration curves of a detector `\(\rightarrow\)` still some mismatch, maybe due to amount of parameters
+
+<p style="text-align:center;">
+<img src="images/pulse_shape/calibration_curve_mean.svg" alt="calibration_curve_mean" width="1000px" align="middle"/>
+<img src="images/pulse_shape/ToT_vs_energy_fit.svg" alt="ToT_vs_energy_fit" height="250px" align="middle"/>
+</p>
+
+---
+
+## Parameter Temperature Dependence 
+
+- Tried to vary MOSFET parameters as a function of temperature to achieve behavior of warm and cold calibration line intersection
+- New approach: look at remaining parameters
+
+<p style="text-align:center;">
+<img src="images/parameter_temperature.png" alt="parameter_temperature" height="450px" align="middle"/>
+</p>
+
+---
+
+## Temperature: Uout vs. Time
+
+- Vary `\(I_\mathrm{krum}\)`, `\(U_\mathrm{fbk}\)` and `\(U_\mathrm{ThA}\)` at the same time
+- Again, calculate calibration curve for each temperature
+
+<p style="text-align:center;">
+<img src="images/pulse_shape/Uout_vs_time_15keV.svg" alt="Uout_vs_time_15keV" height="350px" align="middle"/>
+<img src="images/pulse_shape/Uout_vs_time_100keV.svg" alt="Uout_vs_time_100keV" height="350px" align="middle"/>
+</p>
+
+---
+
+## Temperature: ToT vs. Energy
+
+- Shows similar behaviour like in measurement!
+
+- Indication of the problem but on proof
+
+<p style="text-align:center;">
+<img src="images/pulse_shape/temperature_calib.svg" alt="temperature_calib" height="350px" align="middle"/>
+</p>
+
+---
+
+## Temperature vs. ToT
+
+<p style="text-align:center;">
+<img src="images/pulse_shape/temp_calib.svg" alt="temp_calib" height="350px" align="middle"/>
+<img src="images/pulse_shape/temp_calib_slope.svg" alt="temp_calib_slope" height="350px" align="middle"/>
+</p>
+
+---
+
+## Conclusion
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+    
+    <script>
+      var slideshow = remark.create({
+        // Set the slideshow display ratio
+        // Default: '4:3'
+        // Alternatives: '16:9', ...
+        ratio: '16:9',
+        
+        // Navigation options
+        navigation: {
+          // Enable or disable navigating using scroll
+          // Default: true
+          // Alternatives: false
+          scroll: true,
+        
+          // Enable or disable navigation using touch
+          // Default: true
+          // Alternatives: false
+          touch: true,
+        
+          // Enable or disable navigation using click
+          // Default: false
+          // Alternatives: true
+          click: false
+        },
+        
+        // Customize slide number label, either using a format string..
+        slideNumberFormat: 'Slide %current% of %total%',
+        // .. or by using a format function
+        slideNumberFormat: function (current, total) {
+          return 'Slide ' + current + ' of ' + total;
+        },
+        
+        // Enable or disable counting of incremental slides in the slide counting
+        countIncrementalSlides: true
+      }); 
+    
+      // Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+    
+      MathJax.Hub.Configured();
+    
+    </script>
+      </body>
+    </html>
+
