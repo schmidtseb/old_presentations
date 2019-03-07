@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Isoptope Identification</title>
+    <meta charset="utf-8" />
+    
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    
+    <script>
+      // this code is necessary only for showing source in example
+      $(window).load(function() {
+        // position source box in center
+        $('#source').position({
+          of: $('#slideshow')
+        });
+    
+        // show source box
+        $('.show-source > a, #overlay').click(function(e) {
+          e.preventDefault();
+          $('#overlay, #source').toggle(300);
+        });
+    
+        // open source links in new tab/window
+        $('.show-source > a').attr('target', '_blank');
+      });
+    </script>
+    
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Sans);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    
+      body {
+        font-family: 'Droid Sans';
+        font-size: medium;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .small * {
+        font-size: small !important;
+      }
+      code {
+        border-radius: 5px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+      .footnote {
+        position: absolute;
+        font-size: small;
+        bottom: 3em;
+        right: 3em;
+      }
+      /* styling only necessary for displaying source */
+      #source {
+        position: absolute;
+        display: none;
+        font-family: monospace;
+        font-size: medium;
+        background: #333333;
+        color: white;
+        padding: 10px;
+        text-align: left;
+        width: 65%;
+        height: 70%;
+        z-index: 1000;
+      }
+      #overlay {
+        position: absolute;
+        display: none;
+        background: black;
+        width: 100%;
+        height: 100%;
+        opacity: 0.2;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source" readonly>
+class: center, middle, inverse
+
+# Isotope Identification
+
+### 6th March 2019
+
+---
+
+## Motivation
+
+- Ability to measure spectra in DosiMode yields a method to measure energy spectra of radioactive sources within a short duration
+
+- Use characteristic lines in a measured spectrum to predict the material of the source
+
+- Use Deep Learning approach utilizing a classifier to recognize different source as well as fluourescence materials
+
+---
+
+## MC Generation
+
+- Need MC data in order to train a network
+
+- Use mono-energetic detector responses for the DPX board with housing and water phantom (later get rid of the phantom and use the improved housing model if available)
+
+- Due to time issues, detector responses were only simulated for certain energies of the irradiated photon field. For broad spectra, it's sufficient to combine these spectra, but radioactive sources contain various sharp energies
+
+- Therefore, interpolate between spectra using bivariate spline approximation
+
+---
+
+## MC Generation - Interpolation Examples
+
+<p style="text-align:center;">
+	<img src="images/interpolation_50_55.svg" alt="interpolation_50_55" width="500px" align="middle"/>
+	<img src="images/interpolation_150_155.svg" alt="interpolation_150_155" width="500px" align="middle"/>
+</p>
+
+---
+
+## MC Generation - Efficiency
+
+- Need efficency of detectors in order to get correct detector response in MC later
+
+- Take loglog of data and fit polynomial in order to get efficiency for arbitrary energy value
+
+<p style="text-align:center;">
+	<img src="images/efficiency.svg" alt="efficiency" width="500px" align="middle"/>
+</p>
+
+---
+
+## MC Generation - Spectrum
+
+- Use database to get energies and intensities of a source or fluorescence material
+- Multiple parameters can be varied when generating spectra
+  - `\(N_\mathrm{meas}\)` - number of counts
+  - `\(Z\)` - filter material
+  - `\(d\)` - thickness of filter
+  - `\(\tau\)` - convolution parameter
+  - `\(\sigma_\mathrm{gauss}\)` - standard deviation of Gaussian window to broaden spectrum via convolution
+  - `\(f_\mathrm{noise}\)` - amount of noise applied to the spectrum
+  - `\(d_\mathrm{SRC}\)` - thickness of source to estimate self-attenuation
+
+<p style="text-align:center;">
+	<img src="images/MC_gen_Am241.svg" alt="MC_gen_Am241" width="450px" align="middle"/>
+</p>
+
+---
+
+## MC Generation - Filtering and Self Attenuation
+
+- Apply filter of thickness `\(d\)` by calculating Beer-Lambert law for each intensity
+
+- photons pass the source material and have a certain probability to interact with it, leading to fluourescence photons
+  - Assume decays take place homogeneously in the source
+  - Estimate amount of absorption via
+    `\(1 - \int_0^{d_\mathrm{SRC}} \mathrm dx\, e^{-\mu\rho x}\)`
+  - Use absorbed intensity and intensities of fluorescence lines to calculate new intensities for each decay energy
+
+<p style="text-align:center;">
+	<img src="images/MC_gen_Am241_wFilter.svg" alt="MC_gen_Am241_wFilter" width="450px" align="middle"/>
+	<img src="images/MC_gen_Am241_fluo.svg" alt="MC_gen_Am241_fluo" width="450px" align="middle"/>
+</p>
+
+---
+
+## Classifier
+
+- Input shape of (2, 440), only using vac and al detector atm
+- Encoder network with dense layers and dropout 
+- `\(19.3\cdot 10^6\)` weights
+- ADAM optimizer with binary cross entropy loss, batch size of 64
+- Multi-class classifier
+
+<p style="text-align:center;">
+	<img src="images/model.png" alt="model" width="1000px" align="middle"/>
+</p>
+
+---
+
+## Classifier - Training Data
+
+Density of Am241 and Ba133 training data
+
+<p style="text-align:center;">
+	<img src="images/heat_Am241.svg" alt="heat_Am241" width="800px" align="middle"/>
+	<img src="images/heat_63.svg" alt="heat_63" width="800px" align="middle"/>
+</p>
+
+---
+
+## Classifier - Training
+Training with dataset of 10k samples for 30 epochs
+
+<p style="text-align:center;">
+	<img src="images/loss.svg" alt="loss" width="450px" align="middle"/>
+	<img src="images/accuracy.svg" alt="accuracy" width="450px" align="middle"/>
+</p>
+
+---
+
+## Classifier - Prediction (Am241 MC)
+- MC Am241 at the input of the network
+- Multi-class discriminator output indicates ~100% Am241
+<p style="text-align:center;">
+	<img src="images/predict_MC_Am241.svg" alt="predict_MC_Am241" width="450px" align="middle"/>
+	<img src="images/predict_MC_hist_Am241.svg" alt="predict_MC_hist_Am241" width="1000px" align="middle"/>
+</p>
+
+---
+
+## Classifier - Confusion Matrix
+
+<p style="text-align:center;">
+	<img src="images/confusion_matrix.svg" alt="confusion_matrix" width="550px" align="middle"/>
+</p>
+
+---
+
+## Classifier - Real Data
+
+Measurements with various radioactive sources for short durations (2 minutes)
+
+<p style="text-align:center;">
+	<img src="images/predict_Am241.svg" alt="predict_Am241" width="300px" align="middle"/>
+	<img src="images/predict_Ba133.svg" alt="predict_Ba133" width="300px" align="middle"/>
+</p>
+<p style="text-align:center;">
+	<img src="images/predict_Cs137.svg" alt="predict_Cs137" width="300px" align="middle"/>
+	<img src="images/predict_Eu150.svg" alt="predict_Eu150" width="300px" align="middle"/>
+</p>
+
+---
+
+## Classifier - Predictions
+
+- From top to bottom: Am241, Ba133, Cs137, Eu150
+- Am241 and Eu150 are classified, Ba133 is identified as Z=56, Cs137 is classified as I123
+
+<p style="text-align:center;">
+	<img src="images/predict_hist_Am241.svg" alt="predict_hist_Am241" width="800px" align="middle"/>
+	<img src="images/predict_hist_Ba133.svg" alt="predict_hist_Ba133" width="800px" align="middle"/>
+	<img src="images/predict_hist_Cs137.svg" alt="predict_hist_Cs137" width="800px" align="middle"/>
+	<img src="images/predict_hist_Eu150.svg" alt="predict_hist_Eu150" width="800px" align="middle"/>
+</p>
+
+---
+
+## Classifier - Misclassification
+
+- Left: Cs137 measurement, Right: I123 simulation
+- They look similar, therefore hart to discriminate
+- For the future:
+  - Extend energy range in order to improve classification power
+  - Optimize randomly set parameters of spectrum generator to better fit reality
+  - Modify training data to include mixed datasets
+
+<p style="text-align:center;">
+	<img src="images/predict_Cs137.svg" alt="predict_Cs137" width="450px" align="middle"/>
+	<img src="images/MC_gen_I123.svg" alt="MC_gen_I123" width="550px" align="middle"/>
+</p>
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured" type="text/javascript"></script>
+    
+    <script>
+      var slideshow = remark.create({
+        // Set the slideshow display ratio
+        // Default: '4:3'
+        // Alternatives: '16:9', ...
+        ratio: '16:9',
+        
+        // Navigation options
+        navigation: {
+          // Enable or disable navigating using scroll
+          // Default: true
+          // Alternatives: false
+          scroll: true,
+        
+          // Enable or disable navigation using touch
+          // Default: true
+          // Alternatives: false
+          touch: true,
+        
+          // Enable or disable navigation using click
+          // Default: false
+          // Alternatives: true
+          click: false
+        },
+        
+        // Customize slide number label, either using a format string..
+        slideNumberFormat: 'Slide %current% of %total%',
+        // .. or by using a format function
+        slideNumberFormat: function (current, total) {
+          return 'Slide ' + current + ' of ' + total;
+        },
+        
+        // Enable or disable counting of incremental slides in the slide counting
+        countIncrementalSlides: true
+      }); 
+    
+      // Setup MathJax
+      MathJax.Hub.Config({
+          tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+          }
+      });
+    
+      MathJax.Hub.Configured();
+    
+    </script>
+      </body>
+    </html>
+
