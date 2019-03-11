@@ -10,5 +10,9 @@
 | [The Black Art of Energy Calibration](energy_calibration_10_7/pres.html) | 10.7.18 |
 | [MC-Data Agreement](MC_Agreement_30_8/pres.html) | 9.9.18 |
 | [Circle Fit](circle_fit_30_8/pres.html) | 9.9.18 |
-| [Dosi Spectrum](Dosi_Spectrum/pres.html) | 9.9. 18 |
+| [Temperature Update](temperature_update_26_2_19/pres.html) | 26.2.19 |
+| [Dosi Spectrum](Dosi_Spectrum/pres.html) | 9.9. 18 (Update: 6.3.19) |
+| [Isotope Identification](isotope_identification/pres.html) | 7.3.19 |
+| [kVp-Meter](kVp_meter/pres.html) | |
+| [Spectrum Deconvolution](spectrum_deconvolution) | |
 

@@ -2,13 +2,16 @@
 <html>
 <head>
 <meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
-<title>index.md</title><link href='http://fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&subset=latin-ext' rel='stylesheet' type='text/css' />
-<link href='http://fonts.googleapis.com/css?family=Lato:900,300&subset=latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --code-block-bg-color: inherit; }
+<title>index</title><link href='https://fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic&subset=latin-ext' rel='stylesheet' type='text/css' />
+<link href='https://fonts.googleapis.com/css?family=Lato:900,300&subset=latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; }
 html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
 body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; }
+a.url { word-break: break-all; }
 a:active, a:hover { outline: 0px; }
-.in-text-selection, ::selection { background: rgb(181, 214, 252); text-shadow: none; }
-#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; padding-bottom: 70px; white-space: pre-wrap; overflow-x: visible; contain: layout paint; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; word-wrap: break-word; position: relative; padding-bottom: 70px; white-space: pre-wrap; overflow-x: visible; }
+.first-line-indent #write p .md-line { text-indent: 0px; }
+.first-line-indent #write li, .first-line-indent #write p, .first-line-indent #write p .md-line:first-child { text-indent: 2em; }
 .for-image #write { padding-left: 8px; padding-right: 8px; }
 body.typora-export { padding-left: 30px; padding-right: 30px; }
 @media screen and (max-width: 500px) {
@@ -16,29 +19,34 @@ body.typora-export { padding-left: 30px; padding-right: 30px; }
   .CodeMirror-sizer { margin-left: 0px !important; }
   .CodeMirror-gutters { display: none !important; }
 }
-.typora-export #write { margin: 0px auto; }
-#write > p:first-child, #write > ul:first-child, #write > ol:first-child, #write > pre:first-child, #write > blockquote:first-child, #write > div:first-child, #write > table:first-child { margin-top: 30px; }
-#write li > table:first-child { margin-top: -20px; }
+#write > blockquote:first-child, #write > div:first-child, #write > figure:first-child, #write > ol:first-child, #write > p:first-child, #write > pre:first-child, #write > ul:first-child { margin-top: 30px; }
+#write li > figure:first-child { margin-top: -20px; }
+#write ol, #write ul { position: relative; }
 img { max-width: 100%; vertical-align: middle; }
-input, button, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
+button, input, select, textarea { color: inherit; font-style: inherit; font-variant: inherit; font-weight: inherit; font-stretch: inherit; font-size: inherit; line-height: inherit; font-family: inherit; }
 input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
-::before, ::after, * { box-sizing: border-box; }
-#write p, #write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write div, #write pre { width: inherit; }
-#write p, #write h1, #write h2, #write h3, #write h4, #write h5, #write h6 { position: relative; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
 h1 { font-size: 2rem; }
 h2 { font-size: 1.8rem; }
 h3 { font-size: 1.6rem; }
 h4 { font-size: 1.4rem; }
 h5 { font-size: 1.2rem; }
 h6 { font-size: 1rem; }
+h1, h2, h3, h4, h5, h6 { margin-top: 1rem; margin-bottom: 1rem; }
 p { -webkit-margin-before: 1rem; -webkit-margin-after: 1rem; -webkit-margin-start: 0px; -webkit-margin-end: 0px; }
-.typora-export p { white-space: normal; }
-.mathjax-block { margin-top: 0px; margin-bottom: 0px; -webkit-margin-before: 0rem; -webkit-margin-after: 0rem; }
+.mathjax-block { margin-top: 0px; margin-bottom: 0px; -webkit-margin-before: 0px; -webkit-margin-after: 0px; }
 .hidden { display: none; }
-.md-blockmeta { color: rgb(204, 204, 204); font-weight: bold; font-style: italic; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
 a { cursor: pointer; }
-sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; }
-#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; margin: 4px 0px 0px; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
 tr { break-inside: avoid; break-after: auto; }
 thead { display: table-header-group; }
 table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
@@ -50,54 +58,56 @@ table.md-table td { min-width: 80px; }
 .CodeMirror-lines { padding: 0px; }
 div.hr:focus { cursor: none; }
 pre { white-space: pre-wrap; }
+pre.contain-cm { white-space: normal; }
 .CodeMirror-gutters { margin-right: 4px; }
-.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: var(--code-block-bg-color); position: relative !important; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
 .md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
-.md-fences .CodeMirror.CodeMirror-wrap { top: -1.6em; margin-bottom: -1.6em; }
 .md-fences.mock-cm { white-space: pre-wrap; }
 .show-fences-line-number .md-fences { padding-left: 0px; }
 .show-fences-line-number .md-fences.mock-cm { padding-left: 40px; }
-.footnotes { opacity: 0.8; font-size: 0.9rem; padding-top: 1em; padding-bottom: 1em; }
-.footnotes + .footnotes { margin-top: -1em; }
-.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: transparent; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: normal; text-align: left; box-sizing: content-box; direction: ltr; }
+.CodeMirror-line { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
 li div { padding-top: 0px; }
 blockquote { margin: 1rem 0px; }
-li p, li .mathjax-block { margin: 0.5rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
 li { margin: 0px; position: relative; }
 blockquote > :last-child { margin-bottom: 0px; }
-blockquote > :first-child { margin-top: 0px; }
-.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+.footnote-line { white-space: pre-wrap; }
 @media print {
-  html, body { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; border-color: transparent !important; }
   .typora-export * { -webkit-print-color-adjust: exact; }
-  h1, h2, h3, h4, h5, h6 { break-after: avoid-page; orphans: 2; }
-  p { orphans: 4; }
   html.blink-to-pdf { font-size: 13px; }
   .typora-export #write { padding-left: 1cm; padding-right: 1cm; padding-bottom: 0px; break-after: avoid; }
   .typora-export #write::after { height: 0px; }
-  @page { margin: 20mm 0mm; }
+  @page { margin: 20mm 0px; }
 }
 .footnote-line { margin-top: 0.714em; font-size: 0.7em; }
 a img, img a { cursor: pointer; }
-pre.md-meta-block { font-size: 0.8rem; min-height: 2.86rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
-p .md-image:only-child { display: inline-block; width: 100%; text-align: center; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > img:only-child { display: block; margin: auto; }
+.md-line > .md-image:only-child, p > .md-image:only-child { display: inline-block; width: 100%; text-align: center; }
 #write .MathJax_Display { margin: 0.8em 0px 0px; }
 .mathjax-block { white-space: pre; overflow: hidden; width: 100%; }
 p + .mathjax-block { margin-top: -1.143rem; }
 .mathjax-block:not(:empty)::after { display: none; }
-[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: none; box-shadow: none; }
-.task-list { list-style-type: none; }
-.task-list-item { position: relative; padding-left: 1em; }
-.task-list-item input { position: absolute; top: 0px; left: 0px; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); }
 .math { font-size: 1rem; }
 .md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
 .md-toc-content { position: relative; margin-left: 0px; }
-.md-toc::after, .md-toc-content::after { display: none; }
+.md-toc-content::after, .md-toc::after { display: none; }
 .md-toc-item { display: block; color: rgb(65, 131, 196); }
 .md-toc-item a { text-decoration: none; }
 .md-toc-inner:hover { }
 .md-toc-inner { display: inline-block; cursor: pointer; }
-.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: bold; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
 .md-toc-h2 .md-toc-inner { margin-left: 2em; }
 .md-toc-h3 .md-toc-inner { margin-left: 4em; }
 .md-toc-h4 .md-toc-inner { margin-left: 6em; }
@@ -113,20 +123,22 @@ a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; 
 .footnote-line a:not(.reversefootnote) { color: inherit; }
 .md-attr { display: none; }
 .md-fn-count::after { content: "."; }
-.md-tag { opacity: 0.5; }
-.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: monospace; }
+code, pre, tt { font-family: var(--monospace); }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
 code { text-align: left; }
-h1 .md-tag, h2 .md-tag, h3 .md-tag, h4 .md-tag, h5 .md-tag, h6 .md-tag { font-weight: initial; opacity: 0.35; }
-a.md-print-anchor { border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: none !important; background: transparent !important; text-decoration: initial !important; text-shadow: initial !important; }
+a.md-print-anchor { border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
 .md-inline-math .MathJax_SVG .noError { display: none !important; }
-.mathjax-block .MathJax_SVG_Display { text-align: center; margin: 1em 0em; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; display: block !important; }
+.mathjax-block .MathJax_SVG_Display { text-align: center; margin: 1em 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; display: block !important; }
 .MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
 .MathJax_SVG .MJX-monospace { font-family: monospace; }
 .MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
-.MathJax_SVG { display: inline; font-style: normal; font-weight: normal; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
 .MathJax_SVG * { transition: none; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
 .md-diagram-panel > svg { max-width: 100%; }
 [lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
 
 
 :root { --control-text-color: #777; }
@@ -148,7 +160,7 @@ body { font-family: Merriweather, "PT Serif", Georgia, "Times New Roman", STSong
 #write { max-width: 914px; color: rgb(51, 51, 51); }
 img { width: auto; max-width: 100%; }
 body { font-size: 1.5rem; box-sizing: border-box; }
-.md-table-edit { background: rgb(237, 237, 237); padding-top: 4px; }
+.ty-table-edit { background: rgb(237, 237, 237); }
 table { width: 100%; font-size: 1.125rem; }
 table > thead > tr > th, table > thead > tr > td, table > tbody > tr > th, table > tbody > tr > td, table > tfoot > tr > th, table > tfoot > tr > td { padding: 12px; line-height: 1.2; vertical-align: top; border-top: 1px solid rgb(51, 51, 51); }
 table > thead > tr > th { vertical-align: bottom; border-bottom: 2px solid rgb(51, 51, 51); }
@@ -196,13 +208,13 @@ a { color: rgb(70, 63, 92); text-decoration: underline; }
 .code-tooltip { background: white; }
 .code-tooltip-content { font-size: 1.1rem; }
 .task-list { padding-left: 0px; }
-.task-list-item { padding-left: 34px; }
-.task-list-item input { width: 1.25rem; height: 1.25rem; display: block; -webkit-appearance: initial; top: -2px; }
-.task-list-item input:focus { outline: none; box-shadow: none; }
-.task-list-item input::before { border: 1px solid rgb(85, 85, 85); border-radius: 1.5rem; width: 1.5rem; height: 1.5rem; background: rgb(255, 255, 255); content: " "; transition: background-color 200ms ease-in-out; display: block; }
-.task-list-item input:checked::before, .task-list-item input[checked]::before { background: rgb(51, 51, 51); border-width: 2px; display: inline-block; transition: background-color 200ms ease-in-out; }
-.task-list-item input:checked::after, .task-list-item input[checked]::after { opacity: 1; }
-.task-list-item input::after { transition: opacity 0.05s ease-in-out; transform: rotate(-45deg); position: absolute; top: 0.4375rem; left: 0.28125rem; width: 0.9375rem; height: 0.5rem; border-width: 0px 0px 3px 3px; border-bottom-style: solid; border-left-style: solid; border-bottom-color: rgb(255, 255, 255); border-left-color: rgb(255, 255, 255); border-image: initial; border-top-style: initial; border-top-color: initial; border-right-style: initial; border-right-color: initial; content: " "; opacity: 0; }
+.md-task-list-item { padding-left: 34px; }
+.md-task-list-item > input { width: 1.25rem; height: 1.25rem; display: block; -webkit-appearance: initial; top: -2px; margin-left: -1.6em; margin-top: calc(1rem - 7px); }
+.md-task-list-item > input:focus { outline: none; box-shadow: none; }
+.md-task-list-item > input::before { border: 1px solid rgb(85, 85, 85); border-radius: 1.5rem; width: 1.5rem; height: 1.5rem; background: rgb(255, 255, 255); content: " "; transition: background-color 200ms ease-in-out; display: block; }
+.md-task-list-item > input:checked::before, .md-task-list-item > input[checked]::before { background: rgb(51, 51, 51); border-width: 2px; display: inline-block; transition: background-color 200ms ease-in-out; }
+.md-task-list-item > input:checked::after, .md-task-list-item > input[checked]::after { opacity: 1; }
+.md-task-list-item > input::after { transition: opacity 0.05s ease-in-out; transform: rotate(-45deg); position: absolute; top: 0.4375rem; left: 0.28125rem; width: 0.9375rem; height: 0.5rem; border-width: 0px 0px 3px 3px; border-bottom-style: solid; border-left-style: solid; border-bottom-color: rgb(255, 255, 255); border-left-color: rgb(255, 255, 255); border-image: initial; border-top-style: initial; border-top-color: initial; border-right-style: initial; border-right-color: initial; content: " "; opacity: 0; }
 .md-tag { color: inherit; }
 .md-toc:focus .md-toc-content { margin-top: 19px; }
 #typora-sidebar { font-size: 1rem !important; }
@@ -224,10 +236,10 @@ a { color: rgb(70, 63, 92); text-decoration: underline; }
 
 
 
-
+ .typora-export p, .typora-export .footnote-line {white-space: normal;} 
 </style>
 </head>
 <body class='typora-export' >
-<div  id='write'  class = 'is-node'><h1><a name='header-n26' class='md-header-anchor '></a>List of Documents</h1><table><thead><tr><th>Title</th><th>Date</th></tr></thead><tbody><tr><td><a href='phantom_analysis_27_3/pres.html'>PMMA-Water Phantom Backscattering Analysis</a></td><td>27.3.18</td></tr><tr><td><a href='conversion_poly_3_4/pres.html'>Estimation of Conversion Factors - The Polyfit Way</a></td><td>3.4.18</td></tr><tr><td><a href='GDML_reader_17_4/pres.html'>GDML Reader</a></td><td>17.4.18</td></tr><tr><td><a href=''>LED Measurements</a></td><td></td></tr><tr><td><a href='temperature_dependence_3_7/pres.html'>Temperature Dependence</a></td><td>3.7.18</td></tr><tr><td><a href='energy_calibration_10_7/pres.html'>The Black Art of Energy Calibration</a></td><td>10.7.18</td></tr><tr><td><a href='MC_Agreement_30_8/pres.html'>MC-Data Agreement</a></td><td>9.9.18</td></tr><tr><td><a href='circle_fit_30_8/pres.html'>Circle Fit</a></td><td>9.9.18</td></tr><tr><td><a href='Dosi_Spectrum/pres.html'>Dosi Spectrum</a></td><td>9.9. 18</td></tr></tbody></table><p></p></div>
+<div  id='write'  class = 'is-node'><h1><a name='header-n80' class='md-header-anchor '></a>List of Documents</h1><figure><table><thead><tr><th>Title</th><th>Date</th></tr></thead><tbody><tr><td><a href='phantom_analysis_27_3/pres.html'>PMMA-Water Phantom Backscattering Analysis</a></td><td>27.3.18</td></tr><tr><td><a href='conversion_poly_3_4/pres.html'>Estimation of Conversion Factors - The Polyfit Way</a></td><td>3.4.18</td></tr><tr><td><a href='GDML_reader_17_4/pres.html'>GDML Reader</a></td><td>17.4.18</td></tr><tr><td><a href=''>LED Measurements</a></td><td>&nbsp;</td></tr><tr><td><a href='temperature_dependence_3_7/pres.html'>Temperature Dependence</a></td><td>3.7.18</td></tr><tr><td><a href='energy_calibration_10_7/pres.html'>The Black Art of Energy Calibration</a></td><td>10.7.18</td></tr><tr><td><a href='MC_Agreement_30_8/pres.html'>MC-Data Agreement</a></td><td>9.9.18</td></tr><tr><td><a href='circle_fit_30_8/pres.html'>Circle Fit</a></td><td>9.9.18</td></tr><tr><td><a href='temperature_update_26_2_19/pres.html'>Temperature Update</a></td><td>26.2.19</td></tr><tr><td><a href='Dosi_Spectrum/pres.html'>Dosi Spectrum</a></td><td>9.9. 18 (Update: 6.3.19)</td></tr><tr><td><a href='isotope_identification/pres.html'>Isotope Identification</a></td><td>7.3.19</td></tr><tr><td><a href='kVp_meter/pres.html'>kVp-Meter</a></td><td>&nbsp;</td></tr><tr><td><a href='spectrum_deconvolution'>Spectrum Deconvolution</a></td><td>&nbsp;</td></tr></tbody></table></figure><p>&nbsp;</p></div>
 </body>
 </html>
