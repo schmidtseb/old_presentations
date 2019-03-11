@@ -104,7 +104,7 @@ class: center, middle, inverse
 
   - broadening of the measured spectrum since every pixel behaves differently
 
-  - noisy pixels when energy too low or high
+  - noisy pixels when temperature too low or high
 
 - Need convinent method to get rid of temperature dependence `\(\rightarrow\)` Calibration!
 
@@ -116,7 +116,7 @@ class: center, middle, inverse
 
 - Disadvantage: sensitivity for low energy photons is lost
 
-- Idea: Measure ToT as a function of the temperature and adjust accordingly
+- Idea: Measure ToT as a function of temperature and adjust accordingly
 
 ---
 
@@ -138,7 +138,7 @@ But...
 Slope changes drastically with the test pulse energy (and therefore mean ToT)!
 
 - Need to also perform measurements for different mean ToT values
-- Later, want to find function to transform measured ToT value and temperature to ToT value at a certain temperature `\(T_\mathrm{norm}\)` (here: 1570 ADC, indicated by blue dashed line)
+- Later, want to find function to transform measured ToT value and temperature to ToT value at certain temperature `\(T_\mathrm{norm}\)` (here: 1570 ADC, indicated by blue dashed line)
 - Describe each linear function for the pixels by two parameters:
   - Offset: point of intersection with `\(T_\mathrm{norm}\)` on `\(\mu_\mathrm{ToT}\)`-axis
   - Slope
@@ -149,7 +149,7 @@ Slope changes drastically with the test pulse energy (and therefore mean ToT)!
 
 ## Pixel parameters
 
-- Previously defined parameters seem to behave almost linear dependent
+- Previously defined parameters seem to behave almost linearly dependent
 
 - Clearly visible: the four small pixels in the column
 
@@ -188,7 +188,7 @@ with:
 
 - Measured ToT values of most pixels increase
 
-- Energy dependence shows since the higher the energy the greater the shift
+- Energy dependence shows: the higher the energy the greater the shift
 <p style="text-align:center;"><img src="images/Am_ToT_cool.svg" alt="Am_ToT_cool" height="350px" align="middle"/></p>
 
 ---
@@ -240,7 +240,7 @@ Right polynomial conversion factors
 
   - shape of the distribution is unknown: counts will wander from one bin to the other when temperature is changed
 
-  - histogram is discrete and consisting of different sized bins. If temperature shift takes place, jumps in the dose might take place
+  - histogram is discrete and consists of bins of different sizes. If temperature shift takes place, jumps in the dose might take place
 
 - Leave dose histogram as is and shift alphaPoly factors instead!
   
@@ -284,11 +284,13 @@ Right polynomial conversion factors
 
 ## MC Correction
 
-- Top: cool, Bottom: warm
+- Top: warm, Bottom: cool
+- Large deviation of sn-detector, probably due to its large threshold of 32 keV
+- Probably not a large problem since number of counts for sn-detector usually low in comparison
 
 <p style="text-align:center;">
-<img src="images/MC/detector_dose_deviation_im_200.svg" alt="reco_example_5" height="250px" align="middle"/>
-<img src="images/MC/detector_dose_deviation_im_-200.svg" alt="reco_example_30" height="250px" align="middle"/>
+<img src="images/MC/detector_dose_deviation_im_200.svg" alt="reco_example_5" height="230px" align="middle"/>
+<img src="images/MC/detector_dose_deviation_im_-200.svg" alt="reco_example_30" height="230px" align="middle"/>
 </p>
 
 ---
@@ -552,7 +554,7 @@ Apply model to mean calibration curves of a detector `\(\rightarrow\)` still som
 
 - Shows similar behaviour like in measurement!
 
-- Indication of the problem but on proof
+- Indication of the problem but no proof
 
 <p style="text-align:center;">
 <img src="images/pulse_shape/temperature_calib.svg" alt="temperature_calib" height="350px" align="middle"/>
@@ -562,6 +564,8 @@ Apply model to mean calibration curves of a detector `\(\rightarrow\)` still som
 
 ## Temperature vs. ToT
 
+Temperature vs. ToT curves indicate look very similar to measurements
+
 <p style="text-align:center;">
 <img src="images/pulse_shape/temp_calib.svg" alt="temp_calib" height="350px" align="middle"/>
 <img src="images/pulse_shape/temp_calib_slope.svg" alt="temp_calib_slope" height="350px" align="middle"/>
@@ -570,6 +574,18 @@ Apply model to mean calibration curves of a detector `\(\rightarrow\)` still som
 ---
 
 ## Conclusion
+
+- Able to correct temperature fluctuations in range of -20 to 80°C
+
+- Need alphaPoly conversion factors in order to do so
+
+- There remains the influence of noisy pixels for very high and low temperatures
+  
+  - About 70 large pixels in the case of the examined detector
+
+  - Should be the same pixels every time, so they can be turned off when reaching certain temperature thresholds
+
+- Indication of erroneous hardware behaviour found, but no proof yet
 
     </textarea>
     <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
